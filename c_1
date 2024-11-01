@@ -1,0 +1,1041 @@
+
+__________________________________
+
+		    String Literals
+__________________________________
+
+
+"onur"	// elemanları char türünden 5 elemanlı bir dizi. ==> char[5], sonunda '\0' var.
+"onur"	// onur yazısının içinde tutulduğu bir dizi adresidir.
+
+*"nec";	// bu ifadenin değeri, n'dir. Array decay. Bu ifade nec literalinin başlangıç adresini ifade eder yani 'n'
+Fakat "nec" ifadesi ise bu string literalinin bellekteki adresini ifade eder, array decay burada olmuyor.
+
+"berkay"[3]	// k'yi gösterir.
+
+***
+	3["onur"] 	// bu ifade de legal. aslında böyle oluyor ==>	*(3+"onur")
+
+
+DİKKAT
+------
+String literalleri hem C dilinde hem de C++ dilinde salt okuma amaçlı kullanılacak yazılardır. Bir string literalini değiştirme girişimi her iki dilde de UB
+ye yol açar.
+	
+		char *p = "cetin";	//read only
+		*p = 'M';			// UB
+
+Bu yüzden pointer tanımlarken const char* olarak tanımlarsak UB durumları sentaks hatası olur ve bu sayede UB'dan kaçınmış oluruz.
+
+
+
+NOT
+---
+
+C dilinde string literali olan dizilerin türü char[] iken, C++ dilinde string literali olan dizilerin türü const char[] dır.
+
+
+*
+ String literalleri statik ömürlü dizilerdir. Örneğin notmalde fonksiyonlar otomatik ömürlü nesneleri return olarak kullanırlarsa UB olur fakat
+ direk string literallerini return edebilirler çünkü string literalleri statiktir.
+
+
+
+ ÖNEMLİ - MÜLAKAT
+-----------------
+
+	char str[] = "murat";	// 1			
+
+	char *p = "murat";		// 2
+
+Bu ikisi farklı şeyler. 1. satırda bir dizi tanımlıyoruz ve ilk değer verme işlemi gerçekleştiriyoruz. Esasen işlem şu ifadeden farksız;
+	
+	char str[] = {'m','u','r','a','t'};
+
+Ve aynı zamanda otomatik ömürlü bir dizidir.
+
+2. satırda ise bir string literalinin ilk elemanını tutan bir pointer tanımlıyoruz. String literalleri statik ömürlü. Burada bir tane string literali
+bir tane de pointer tanımlamış olduk.
+
+Fakat doğru olan şudur => bu şekilde string literali tanımlamak yerine const char*p = "murat";	
+
+
+
+
+SORU:
+	
+	char *p1 = "onur";
+	char *p2 = "onur";
+
+	if(p1==p2)
+		printf("dogru");
+	else
+		printf("yanlis");
+
+	
+	Bu kod doğru mu yanlış mı? 
+
+	Cevap : Ne doğru ne yanlış. Çünkü derleyici zaten bir str literali tanımlamış ve bir daha aynısını tanımlamak için aynı adresi yani ilk oluşturduğu
+	diziyi kullanabilir. Bu durumda "dogru" bastırır. Fakat diğer tarafta farklı bir dizi de oluşturabilir.
+
+***
+	Yani özdeş literallerin aynı yerde veya farklı yerde (tek dizi olarak veya farklı diziler olarak) tutulması tamamen derleyiciye bağlı. 
+	Bu string literallerinin salt okunur olmasıyla da ilgili.
+
+
+
+NOT
+---
+Zaten string literallerinin eşitliğini sınamak bir fayda sağlayacak işlem değil.
+
+	Örneğin;
+
+		char* psw = "onur cepni";
+		if(psw == "onur cepni")		// array decay olmaz çünkü gerçek bir dizi tanımlamadık, sadece bir string literalini point eden bir pointer
+			// code					// tanımladık.
+
+
+Bu ifade doğru olmak zorunda değil çünkü derleyici 1.satırdaki str literalini başka yerde, diğer str literalini başaka bir yerde tutabilir bellekte.
+
+---------------------------------------------
+
+* String literallerini yazarken alt satırdan devam edilebilir fakat boşlukları da hesaba kattığı için çok tercih edilmez. (hizalamak için boşluk verirsek)
+
+	char *p = "merhaba, bugun \
+			   hava cok guzel";
+
+* İki string literali yan yana ise derleyici birleştirir.
+
+	char* p = "onur" "cepni";
+
+	char* p = "hey" 
+			  "merhaba";
+
+
+*
+	"" ==> aslında bu da bir string literali. Buna NULL string literal deniyor.
+
+	Aslında char[1], 1 elemanlı char dizi.
+
+
+strlen ve sizeof farkı
+----------------------
+
+strlen(str)	// sabit bir ifade değil, runtime da belli.
+
+sizeof(str) // sabit bir ifade, compile time da belli
+
+sizeof bir operatör, keyword.
+
+sizeof ta Array Decay uygulanmaz.
+
+*
+	sizeof("necati");	// bu ifadenin değeri 7'dir. Çünkü 7 bayt var.
+
+	strlen("necati");	// strlen fonksiyonu runtime'da değer üretir ve yazının uzunluğunu döndürür. Yani strlen ifadesinin değeri 6.
+
+*
+	char str[100] = "onur";
+
+	strlen(str);	// 5 döndürür.
+
+	sizeof(str);	// 100 döndürür.
+
+
+
+
+Sizeof ile İlgili Sorular / Mülakat
+-----------------------------------
+
+	chat str[100] = "sertac";
+	char* p = str;
+
+(1) sizeof(str)			==> 100
+(2) sizeof(*str)		==> 1
+(3) sizeof(p)			==> cevap pointer sizeof'u. derleyiciye bağlı. genelde 4 bayt oluyor.
+(4) sizeof(*p)			==> 1
+(5) void foo(char* p)
+	{
+		printf("%zu \n",sizeof(p));
+	}
+
+	foo(str);			==> 4 / char* türü
+(6) strlen(p)			==> 6
+(7) sizeof(++p)			==> 4 / char* türü / dikkat! sizeof ifadesi için işlem kodu üretilmez, unevaluated context.
+(8) strlen(p)			==> 6 / 7.ifadede işlem kodu üretilmez, etkilemez.
+(9) sizeof("sertac")	==> 7 / char[7] türü
+	sizeof(char[7])		==> Aynısı. Array decay uygulanmıyor çünkü.
+(10) strlen("sertac")	==> 6
+(11) sizeof("")			==> 1
+(12) strlen("")			==> 0
+
+
+
+
+
+______________________________________________________________
+
+		char* strpbrk(const char* p, const char* pkey)
+______________________________________________________________
+
+Bir arama fonksiyonu. Bir karakter grubunu ararken kullanılır. İkinci aldığı parametre, yazıda aranacak karakterlerin bulunduğu dizinin adresi.
+-> ikinci parametrede karakterlerin sırası önemsizdir. "aeiou" veya "uoiea" aynı. Arama yaparken bunlardan herhangi birinin ilk geçtiği yer bulunur.
+
+!my_strpbrk() fonksiyonu yaz.
+
+char* my_strpbrk(const char* pstr, const char* pcontrol){
+		for(int i = 0; pstr[i] != '\0', ++i)
+			if(strchr(pcontrol,pstr[i] != NULL))
+				return (char*)(pstr+i);
+	}
+
+
+
+
+
+
+
+
+________________________________
+
+		Pointer Arrays 
+________________________________
+
+	int x, y, z, t = 10;
+	int* a[] = { &x, &y, &z, &t};	// pointer array
+
+	for(int i=0; i < 4; ++i){
+		++*a[i];
+	}
+
+
+Mülakat
+-------
+
+	int a[] = {2,4,5,7};
+	int b[] = {3,6,9,1};
+	int c[] = {17,45,67,98};
+
+	int* p[] = {a,b,c};
+
+	++p[2];		// c'nin ilk elemanını 45'e kaydırdı. yani c'nin gösterdiği adresi +1 arttırdı.
+	++p*[2];	// c'nin yeni ilk elemanı 45'i +1 arttırdı ve 46 yaptı.
+
+
+
+HATIRLATMA:
+----------
+
+asize --> sizeof(a) / sizeof(*a)
+a dizisinin kaç elemanı olduğunu bize verir. Pointer dizileri ile de kullanılabilir.
+
+* Bir pointer dizisinin boyutu belirtilmişse fakat initializer sayısı dizinin boyutundan daha az ise dizinin kalan elemanları NULL Pointer
+değeri ile initialize edilir.
+
+
+
+*
+	Bazen dizinin ilk elemanını "" yani Null yaparlar. Bu sayede index 1'den başlamış olur. Örneğin aylarla ilgili bir pointer dizisinde böyle bir kullanım
+	kolaylık açısından seçilebilir.
+
+*
+	Bazen de pointer dizilerinde son elemana bilerek NULL değeri verilir. Bu sayede diziyi dolaşmak ve ifade yazarken while(p[i]) kullanarak elemanları
+	gezilebilir.
+
+	char* a[5] = {"onur","ahmet","mehmet","necati"};
+
+	burada 5 elemanlı bir diziyi 4 elemanla initialize ettik. Bu durumda pointer dizisi olduğu için derleyici son elemanı NULL yaparak ekler.
+
+
+___________________________________
+		
+		Pointer to Pointer
+___________________________________
+
+	int x = 10;
+
+	int* p = &x;		// pointer to int
+
+	int** ptr = &p;		// pointer to pointer to int
+
+	**ptr;				// bu ifade op. önceliği ile bakıldığında şöyle => *(*ptr), yani aslında x'tir.
+
+
+
+Expression				Data Type				Value Category
+______________________________________________________________
+
+x 						int 					L
+&x 						int*					R
+p 						int* 					L
+*p 						int 					L
+&p 						int** 					R
+ptr 					int** 					L
+*ptr 					int* 					L
+**ptr 					int 					L
+&ptr 					int*** 					R
+
+	int x = 10;
+	int*p = &x;
+	int** ptr = &p;
+
+
+
+Mülakat Sorusu
+--------------
+
+	int a[] = {2,4,6,8,10,12};
+
+	int* p = a;
+	int** ptr = &p;
+
+	++*ptr;			// aslında şu ifadedir ==> ++p
+	++**ptr;		// p nin işaret ettiği a[1] in değerini 1 arttırır ve 5 olur.
+
+
+
+Soru:
+	ptr değişkenini kullanarak a dizisinin 3.elemanına erişin.
+
+	*ptr[3]	 // yanlış, çünkü bu ifade aslında operatör önceliğinden dolayı şöyledir -> *(ptr[3])
+
+	fakat öncelik parantezi kullanırsak;
+
+		(*ptr)[3]		// doğru
+		*(*ptr + 3) 	// doğru
+
+
+
+
+Neden Pointer to Pointer Kullanalım? Ne İşe Yarar?
+--------------------------------------------------
+
+Aynı normal call by reference fonksiyonlarında olduğu gibi pointerlarda call by reference ile değiştirilebilir.
+
+	void bar(int**)
+
+Parametre olarak pointerin kendi adresini göndeririz. Call by reference olduğu için direk pointera işlem yapar.
+
+
+Pointer Adres Swap Örneği:
+__________________________
+
+	void pswap(int** p1, int** p2)
+	{
+		int* ptemp = *p1;
+		*p1 = *p2;
+		*p2 = ptemp;
+	}
+
+* Eğer bir fonksiyon bir pointer değişkenin değerini set ederse, fonksiyonun parametre değişkeninin pointer to pointer olması gerekiyor.
+
+Bir örnek daha:
+	void get_array_min_max(const int* pa, size_t size, int** pmin, int** pmax)
+	{
+		*pmin = *pmax = (int*)pa;
+		
+		for(size_t i = 1; i<size; ++i){
+
+		if(pa[i] < **pmin){
+			*pmin = (int*)(pa+i);
+		}
+
+		else if(pa[i] > **pmax){
+			*pmax = (int*)(pa + i);
+		}
+
+	}
+
+
+
+
+Pointer to Pointer'larda Constluk
+---------------------------------
+
+Kuralı hatırlayalım.. Const neyden önce gelirse o const'tur.
+
+	const int** ptr = &p1;
+	**ptr = 45;	//illegal
+
+
+____________________________
+
+		Void Pointers
+____________________________
+
+Void Anahtar Sözcüğü
+--------------------
+
+Void de int, double, float gibi bir türdür. Fakat;
+
+- Bu türden bir tür tanımlayamayız.
+- Incomplete type'dır. Bu türlerden değişken tanımlanmaz.
+
+Fakat; 
+
+* Bir ifadenin türü void olabilir.
+	-> Örneğin bir fonksiyonun geri dönüş türü void ise, fonksiyon çağrıldığında ki çağrı ifadesi void'tur.
+
+* Diğer bir yol, tür dönüştürme operatörüdür. Elimizde herhangi bir ifade var ve bu ifadeyi tür dönüştürme operatörünün operandı yaparsak ve hedef tür
+olarak void türünü belirlersek, tür dönüştürme operatörünün elde ettiği ifade void türden olur.
+	-> void foo(int);
+		foo(1);			(void)bar(1);
+
+* Bazen fonksiyonların geri dönüş değerini discard etmek için kullanılır.
+
+
+NOT
+---
+Fonksiyon bildiriminde parametre parantezinin içini
+
+	void keyword koymak veya boş bırakmak C++ dilinde anlamsal bir fark oluşturmamakla birlikte C dilinde farklı anlama gelir.
+
+	int foo();		// parametre değişkeni hk. bilgi verilmemiş demek
+	int bar(void);	// parametre değişkeni yok demek
+
+
+
+__________________________________
+
+	Void Pointers  /  Void *
+__________________________________
+
+Bu tür bir pointer / adres türü. Bir object pointer türüdür.
+
+* void* türünden bir değişkene herhangi türden bir nesnenin adresini atayabiliriz.
+
+Kullanıldığı Durumlar
+---------------------
+void* türünden int* türüne implicit dönüşüm C'de var fakat C++'da sentaks hatası.
+
+	int x = 10;
+	int* iptr;
+
+	void* vptr = &x;
+	iptr = vptr;
+
+Bazı programcılar C++'a da uygun olsun diye veya kodun daha açıklayıcı olması için implicit type conversion yerine açık olarak type conversion yapar. Benim
+seçimim de budur.
+
+	iptr = (int*)vptr;
+
+* void pointerların en çok kullanıldığı yer generic fonksiyonlar.
+
+
+
+Void Pointer İle Generic Fonksiyon Programlama
+----------------------------------------------
+
+	void gswap(void* vp1, void* vp2, size_t n);
+
+Örneğin bu fonksiyon herhangi bir türden pointer alıp aynı işlemleri her bir tür için uygulayabilir. Yani;
+	
+	gswap(&i1, &i2, sizeof(int)) 			--> int için
+	gswap(&d1, &d2, sizeof(double))			--> double için
+
+iki tür için de aynı fonksiyonu kullandık void pointer sayesinde.
+
+Fonksiyonu yazarken fonksiyona girilen parametrelerin türünü bilmiyoruz. Fakat bildiğimiz birşey var; her iki nesnenin de bellekte kaç bayt yer kapladığını
+biliyoruz. Peki bu baytları karşılıklı olarak takas etsek, türünü bilmeden de bu nesneleri swap etmek anlamına gelir.
+
+Peki bunu nasıl yapacağız?
+--------------------------
+1 baytlık pointer'ı gösteren pointer hangi pointer türü?
+	-> char, signed char ya da unsigned char. C'nin kuralları diyor ki herhangi bir nesneyi charlardan oluşan bir diziymiş gibi kullanabiliriz.
+
+	void gswap(void* vp1, void* vp2, size_t n)
+	{
+		char* p1 = (char*)vp1;
+		char* p2 = (char*)vp2;
+
+		while(n--){
+			char* temp = *p1;
+			*p1++ = *p2;
+			*p2++ = temp;
+		}
+	}
+
+***
+Elimizde 2 tane int olsun;
+
+Biz bu int'in bellekte kapladığı bayt sayısını sizeof operatörü ile alıyoruz. Ardından bunu (void pointer) char*'a dönüştürüyoruz. Dönüşüm sonrası adeta
+elimizde 4 baytlık / 4 elemanlık bir char dizisi oluyor. char* yaptığımız pointeri arttırarak diziyi dönüyor ve her basamakta baytları / elemanları takas 
+ediyoruz.
+
+
+Greverse Function
+
+	void greverse(void* vp, size_t size, size_t sz) // size -> dizi boyutu, sz -> sizeof(int) yani türün bayt sayısı
+	{
+		char* p = (char*)vp;
+		for(size_t i = 0; i<size/2; ++i){
+			gswap(p+i * sz, p + (size-i-1) * sz, sz);	// **
+		}
+	}
+
+p + i *sz ifadesi diziyi gezmek için. Mantığı ne?
+	-> Çünkü burada pointerımız (char*) dizinin türünde bir pointer olmadığı için pointer aritmetiğine göre her arttırdığımızda 1 bayt ileri gidecek. Ancak
+	dizinin türü örneğin int ise 2.eleman 3 bayt sonra olacak o yüzden dizinin türünün baytı olan sz ile çarğarak 1(char) x 4(int), 1(char) x 2(short) vs.
+	şeklinde doğru bir işleme çeviriyoruz.	
+
+
+NOT: sizeof(double) yazmakla sizeof(ar[0]) yazmak aynı. ar burada dizinin adı.
+
+
+
+
+
+		Bazı Generic Standard C Fonksiyonları
+-----------------------------------------------------
+
+memset			Bellek blokları üzerinde işlem yapan fonksiyonlar oldukları için memory'nin mem harfi ile başlıyorlar. NTBS ile çalışmazlar ama string.h 
+memcpy			başlık dosyasında yer alıyorlar yine de.
+memmove
+memchr
+memcmp
+
+
+void* memset(void* vp, int val, size_t n)
+-----------------------------------------
+
+Geri dönüş değeri 1.parametresine geçtiğimiz adres. Belirli bir bellek bloğunun türüne girdiğimiz değeri set eder.
+
+	int ar[SIZE];
+	memset(ar, 0, SIZE);	// her elemanını 0 yapar.
+
+	for ile yapmaktansa böyle bir fonksiyon ile bu işlemi yapmak daha iyidir.
+
+
+NOT: sizeof() operatörü dizi ismi girersek o dizinin toplam bellekte kapladığı yer miktarını döndürür.
+
+Örneğin 100 elemanlı int diziyse -> 100 x 4 = 400 bayt
+
+
+Örnek Kullanım:
+	
+	char str[] = "AAAABBBBCCCC";
+	memset(str+4, 'x', 4);
+
+	burada memset ile B'leri x karakterine çevirmiş olduk.
+
+
+
+void* my_memset(void* vp, int val, size_t n)
+{
+		char* p = (char*) vp; // şimdi p'yi pointer aritmetiğinde kullanabiliriz.
+
+		while(n--){
+			*p = val;
+			++p;		// daha iyisi ->  *p++ = (char)val;
+		}
+
+		return vp;
+}
+
+--------------
+Mülakat Sorusu
+--------------
+
+	int x;
+
+	memset(&x, 255, sizeof x);
+	printf("x = %d\n", x);
+
+	OUTPUT = -1
+
+-----
+BİLGİ
+-----
+Bir bellek bloğunun bütün baytlarını 0'la doldurmaya o bellek bloğunu clear etmek denir.
+
+
+---------
+Endiannes
+---------
+
+Bir değer bellek bloğunda nasıl tutulur?
+
+	int x = 1;
+
+0000 0000 0000 0000 0000 0000 0000 0001
+
+
+bellek adresi
+_____________		Big Endian
+
+4800		0000	0000
+4801		0000	0000
+4802		0000	0000
+4803		0000	0001
+
+
+					Little Endian
+
+4800		0000	0001
+4801		0000	0000
+4802		0000	0000
+4803		0000	0000
+
+
+Little Endian --> Düşün anlamlı bayt yüksek sayısal adreste.
+Big Endian -->	Yüksek anlamlı bayt düşük sayısal adreste.
+
+bunlar işlemci mimarisi ile alakalı. Örneğin intel tarzı mimari Little Endian'dır. Motorola tarzı mimari Big Endian gibi gibi..
+
+
+
+Bir örnek: [Endiannes]
+
+	int x = 1;
+	char* p = (char*)&x;
+
+	if(*p){
+		printf("little endian");
+	}
+
+	else{
+		printf("big endian");
+	}
+
+
+Eğer bu kodun çalıştırıldığı sistem örneğin intel ise Little Endian yazacak. Big Endian bir sistem ise Big Endian yazar.
+
+Fakat mülakatta bu soru sorulursa böyle değil de daha şık bir kod yazabiliriz operatör önceliğinden faydalanarak.
+
+	int x = 1;
+
+	if(*(char*)&x)
+		printf("Little Endian");
+	else
+		printf("Big Endian");
+
+
+
+
+
+Endiannes Ne Zaman Önemlidir?
+-----------------------------
+
+Bir yerden bir yere veri aktarıyoruz fakat veriyi verenle alanın endiannesları farklı. İşte o zaman endiannes önemlidir. Ekstra işlem yapmak gerekecek.
+
+
+
+
+
+
+void* memcpy(void* vptr, const void* vpsource, size_t n)
+--------------------------------------------------------
+Generic bir kopyalama fonksiyonudur. Bir bellek bloğunu bir yerden bir yere kopyalar. Fakat generic fonksiyon olduğu için ne kopyaladığını bilmez.
+size_t n kaç bayt kopyalayacağını alır.
+
+
+	void* my_memcpy(void* vpdest, const void* vpsource, size_t n)
+	{
+		char* pdest = (char*)vpdest;
+
+		const char* psource = (const char*)vpsource;
+
+		while(n--)
+			*pdest++ = *psource++;
+
+		return vpdest;
+	}
+
+
+
+
+
+void* memmove(void* vpdest, const void* vpsource, size_t n)
+-----------------------------------------------------------
+overlapped block konusunu hatırlayalım. [kesişen, çakışan bloklar]
+
+	char str[SIZE] = "sevcan";
+	strcpy(str+3,str);
+	puts(str);
+
+	bu kod tanımsız davranış içerir. C99 standardıyla dile restrict anahtar sözcüğü eklendi. Overlapped olmadığını garanti eder.
+
+	char* strcpy(char* restrict pdest, const char* restrict psource);
+
+	C99 standardıyla birlikte memcpy fonksiyon bildirimi de değişti.
+
+ 	void* memcpy(void* restrict vpdest, const void* restrict vpsource, size_t n)
+
+	Fakat memmove fonksiyonu overlapped blokları üzerinde tanımlı bir davranışa sahip. 
+
+Örneğin "gulden" yazısını "gulgulden" yapmak için;
+	
+		char str[SIZE] = "gulden";
+
+		memmove(str + 3, str, strlen(str) + 1);
+
+		bu şekilde yaparsak UB olmaz. Fakat strcpy ile yaparsak overlapped blocks olur ve UB olur.
+
+
+void* memchr(const void* vp, int val, size_t n)
+-----------------------------------------------
+Adresini ve büyüklüğünü aldığı bellek bloğunda bir tam sayı değerini arıyor. strchr veya strrchr gibi NTBS çalışmaz. Belirtilen yer scopeunda arama yapar.
+
+
+	void* my_memchr(const void* vp, int val, size_t n)
+	{
+		const char* p = (const char*)vp;
+
+		while(n--){
+			if(*p == val)
+				return (char*)p;
+			++p;
+		}
+
+		return NULL;
+	}
+
+
+
+
+int memcmp(const void* vp1, const void* vp2, size_t n)
+------------------------------------------------------
+Birinci parametreye geçilen bellek bloğu ikinciden büyükse pozitif herhangi bir değer, ikinci büyükse negatif bir değer, ikisi de eşitse 0 döndürür.
+
+* ÖNEMLİ NOT : Bellek bloklarını unsigned olarak karşılaştırır.
+
+
+	int my_memcmp(const void* vp1, const void* vp2, size_t n)
+	{
+		typedef unsigned char BYTE;
+		BYTE* p1 = (BYTE*)vp1;
+		BYTE* P2 = (BYTE*)vp2;
+
+		while(n--){
+			if(*p1 != *p2)
+				return *p1 > *p2 ? 1 : -1;
+			++p1;
+			++p2;
+		}
+
+		return 0;
+	}
+
+
+Örneğin iki dizinin elemanlarının eşitliğini kontrol ederken kullanabiliriz.
+
+		memcmp(a,b,sizeof a);
+
+*** 
+	bayt bayt compare işlemi yapar ve unsigned olarak yapar.
+
+01011100	10101101
+11110000	11110000
+01011101	01110011
+01011110	01011110
+
+Yani little endian mı, big endian mı o bile fark eder. (İki farklı sistem için)
+
+
+*** Aynı zamanda unsigned olduğu için dikkat etmek gerekir. Çünkü birisi negatif diğer pozitifse problem olur.
+
+
+
+
+Örnek Generic Search Fonksiyonu:
+
+	Generic bir arama fonksiyonu yazabiliriz. Kullanıcıdan aranacak veriyi key olarak alırız. Bütün bellek bloklarını memcmp ile key değerimizle 
+	karşılaştırırız.
+
+	void* gsearch(const void* vpa, size_t size, size_t sz, const void* vpkey)
+	{
+		const char* p = (const char*)vpa;
+		for(size_t i = 0; i < size; ++i){
+			if(!memcmp(p+i * sz, vpkey,sz)){
+				return (void*)(p + i * sz);
+			}
+		}
+
+		return NULL;
+	}
+
+böyle de yazabiliriz;
+
+	{
+		const char* p = (const char*)vpa;
+
+		while(size--){
+			if(!memcmp(p, vpkey, sz))
+				return (char*)p;
+		p += sz;
+		
+		}
+	return NULL;
+
+	}
+
+const void* vpa: Arama yapılacak veri bloğunun başlangıç adresini gösterir.
+size_t size: Veri bloğunda kaç eleman olduğu bilgisi.
+size_t sz: Her bir elemanın boyutu (bayt cinsinden).
+const void* vpkey: Aranacak anahtarın adresi.
+
+
+
+
+Mülakat Sorusu
+--------------
+
+void* türünden bir değişken herhangi türden bir nesnenin adresini tutabilir. Fakat void** türü böyle değil. void** türü void** türünden bir adres tutabilir.
+
+
+NOT/BİLGİ
+_________
+
+	int a[5] = { 0 };
+	&a[0];	// ifadesinin türü int*
+
+	----------
+
+	int *a[5] = { 0 };
+	&a[0];	// ifadesinin türü int**
+
+	----------
+
+	void* a[5] = { 0 };
+	&a[0];	// void**
+
+////////////////////////
+
+	int x = 10;
+	double d = 45.56;
+
+	void* vp = &x;
+	void** vptr = &vp;
+
+	*vptr = &d;	// burada hata yok
+				// aslında vp = &d; yazmış oluyoruz.
+
+	void foo(void** vp)
+	{
+		*vp = &x;	// legal ve void* türü
+		**vp = &x;	// illegal çünkü : *(*vp)  --> burada void pointeri dereference etmiş oluyoruz bu da hataya sebep olur.
+	}
+
+***
+  SORU:
+
+	int *p 	  = NULL;
+	void* x   = &p;		// legal 	==> void* = int**  olur void*'a her tür atanır.
+	void** y  = &p;		// illegal, error vermez ama uyarı verir. ==> void** = int**  olmaz void** ve int** tür uyuşmazlığı derleyici uyarı verir.
+
+	C++'da ise direk hata olur.
+
+	Yani void* türü ile void** türü karıştırılmamalıdır. void* generic bir pointer türü olup herhangi bir adresi tutabilir. Fakat void** türü generic bir
+	pointer türü değil, void* türünden nesne adresi olan ifadenin türü ve deferencebly. Yani deferans edersek void* türünden bir nesneye erişmiş oluruz.
+
+
+
+
+
+
+__________________________________
+		
+		Function Pointers
+__________________________________
+
+object pointers			değişkenlerin(nesnelerin adresleri)
+
+function pointers		fonksiyonların adresleri
+
+Öyle ifadeler olmalı ki fonksiyon adresi türü olmalı.
+
+
+bildirim 				fonk. türü 				fonk. adres türü
+--------				----------				----------------
+int foo(int)			int(int)				int(*)(int)
+int bar(int,int)		int(int,int)			int(*)(int,int)
+double baz(double)		double(double)			double(*)(double)
+	
+strlen işlevinin adresinin türü: size_t	(*)(const char*)
+
+***
+	int foo(int) diye bir fonksiyon olsun. foo yazmak yerine &foo yazmak aynıdır. Sadece foo yazarsak bu da derleyici tarafından fonksiyonun adresine
+	çevirilir. Buna function to pointer conversion denir.
+
+Fonksiyonu Nasıl Çağırırız?
+---------------------------
+Fonksiyonun ismini fonksiyonun çağrı operatörünün operandı yaparak çağırırız. Function Call Operator
+
+	foo(45);	// function designator => foo
+												foo
+* Function call operator'un operandı ya function designator olacak ya da function pointer.
+
+
+	fonksiyon_adresi()
+
+	(&foo)(45) 	< == >  foo(45)
+
+
+* Fonksiyon adreslerini tutan pointer değişkenleri oluşturabiliriz.
+	-> int (*fp)(int);	// bu şekilde oluştururuz.
+
+int foo(int);
+int (*fp)(int) = foo;	// &foo ile foo aynı anlamda.
+
+---------------------------------
+void foo(void);
+void (*fp)(void) = &foo;
+
+fp();	// foo çağırılır. Bu satırda çağırılan fonksiyon -> foo
+
+void bar(void);
+void baz(void);
+
+void (*fp)(void) = &foo;
+
+fp();			// foo çağırıldı
+fp = &bar;
+fp();			// bar çağırıldı
+fp = &baz;
+fp();			// baz çağırıldı
+
+
+
+* Bir fonksiyon argüman olarak başka bir fonksiyon alabilir.
+
+	void func(void (*fp)(void))
+		-> burada func fonksiyonu bir fonksiyon adresi alıyor.
+		callback mechanism
+
+Kullanım Örneği
+---------------
+Örneğin karakter yazdıran fonksiyon yazmak istiyoruz ama istediğimiz türde karakterleri. Mesela büyük harf, küçük harf, punctual, digit vs.
+
+
+	void print_chars(int (*fp)(int))
+	{
+		for(int i = 0; i < 128; ++i){
+			if(fp[i]){
+			printf("%c",i);
+			}
+		}
+	}
+
+	print_chars(&isupper);
+	print_chars(&islower);
+	print_char(&isdigit);
+	print_char(&ispunct);
+
+* Fonksiyon çağrı parantezini ve * (dereference) operatörünü işlem öncelik sırasından dolayı böyle yazarız;
+	int retval = (*fp)(56);
+
+	Eğer *fp(56) yazarsak öncelik sırasından dolayı *(fp(56)) olacak. Yani yukardaki gibi yazalım.
+
+	Böyle bir ifadeyi vurgulamak amaçlı yazabiliriz. Yani function pointer olduğunu vurgulamak için.
+
+
+---------------------------------------
+
+ÖNEMLİ***
+
+	int bar(void);
+
+	foo(bar())		ile 	foo(bar)	ifadeleri farklıdır!
+
+	foo(bar())	yazdığımızda bar fonksiyonunu çağırmış oluruz.
+
+	foo(bar) yazdığımızda ise aynı şöyle yazmışız gibi olur: foo(&bar) Burada fonksiyonun adresini argüman olarak gönderiyoruz.
+
+
+
+
+Function Pointer Array
+----------------------
+foo, bar ve baz olarak 3 tane fonksiyon olsun.
+
+	int(*fpar[3])(const char*, const char*) = {&foo, &bar, &baz};
+
+---
+NOT
+---
+	Bir fonksiyonun geri dönüş değeri türü function pointer olabilir.
+	Örneğin bir fonksiyonun geri dönüş değeri int(*)(int,double)
+		int(*foo(void)(int,double));
+
+	Yani foo fonksiyonu int ergo(int,double) gibi bir fonksiyon döndürebilir. (return edebilir)
+
+* Bildirimler çok karmaşıklaştığında type alias kullanmak kaçınılmaz olur.
+
+	typedef int(*FPTR)(const char*, const char*)
+
+		FPTR fpar[] = {foo,bar,baz};
+
+
+-----------------------
+Function Pointer Arrays
+-----------------------
+Elemanları function pointer olan dizilerdir. Örneğin bir menü var ve her seçenek için bir fonksiyon var. Biz bu seçeneklerden birini seçiyoruz. Buna
+"Jump Table" da denir.
+
+Veya 10 tane fonksiyon var ve bunların çağrılması gerekiyor. Bu fonksiyonların adreslerini bir dizide tutsak ve o dizinin elemanlarını dolaşsak o zaman o
+adreslerdeki fonksiyonları sırasıyla çağırsak bu fonksiyonları çağırmış oluruz.
+
+	int(*fpa[10](double));
+
+	bu şekilde tanımlanır.
+
+Örnek Tanımlama
+---------------
+
+	int f1(int,int);
+	int f2(int,int);
+	int f3(int,int);
+
+	int (*fpa[])(int,int) = {f1,f2,f3}; // & operatörü kullansak da kullanmasak da aynı anlamda.
+
+	bu diziyi dönerek fonksiyonları çağırabiliriz.
+
+		for(int i = 0; i < 5; ++i){
+			fpa[i](i,i);	// function call operator ile çağırırız.
+		}
+
+
+
+Mülakatta Sık Çıkan Soru:
+-------------------------
+	char func_name[40];
+	printf("bir karakter girin: ");
+	int ch = getchar();
+	printf("\nhangi test fonksiyonunu çağırmak istiyorsunuz?");
+	scanf("%s", func_name);
+
+
+
+*** Bir Başka Kullanım ***
+--------------------------
+Örneğin bir kütüphanede bir fonksiyon var. Bu fonksiyon foo olsun. Bu fonksiyona çağrı yapıldığında örneğin bar isimli fonksiyonu default olarak çağırıyor.
+
+Bir tane de (genel yapısı set_xxx) set_foo isimli bir fonksiyon var. Bu fonksiyon da argüman olarak "function pointer" alıyor. Buna fonksiyon göndererek
+yaptığımız çağrı sonrası foo fonksiyonunun çağırdığı fonksiyon tekrar set ediliyor.
+
+	typedef void(*FPTR)(void);
+	void set_foo(FPTR);
+	foo();			// bar fonk. çağırır default olarak
+	set_foo(&baz);	// foo() çağrı yapınca baz çağırılacak artık
+
+kendimiz yazalım;
+
+static void bar(void){
+	printf("bar cagirildi.");
+}
+
+FPTR gf = &bar;
+
+void foo(void)
+{
+	gf();
+}
+
+FPTR set_foo(FPTR f)
+{
+	FPTR temp = gf;
+	gf = f;
+	return temp;
+}
+
+
