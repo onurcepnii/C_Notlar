@@ -263,17 +263,17 @@ ___________________________________
 
 
 Expression				Data Type				Value Category
-______________________________________________________________
+_______________________________________________________________________________________________
 
-x 						int 					L
-&x 						int*					R
-p 						int* 					L
-*p 						int 					L
-&p 						int** 					R
-ptr 					int** 					L
-*ptr 					int* 					L
-**ptr 					int 					L
-&ptr 					int*** 					R
+x 					int 						L
+&x 					int*						R
+p 					int* 						L
+*p 					int 						L
+&p 					int** 						R
+ptr 					int** 						L
+*ptr 					int* 						L
+**ptr 					int 						L
+&ptr 					int*** 						R
 
 	int x = 10;
 	int*p = &x;
