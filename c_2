@@ -1,0 +1,992 @@
+
+_________________________________________
+
+		Multi Dimensional Arrays
+_________________________________________
+
+
+	int a[10][20];
+
+a bir dizi ama elemanları int[20] türünden olan bir dizi.
+
+Yani a'nın her bir elemanı 20 elemanlı int bir dizi.
+
+a[0] -> 20 elemanlı bir dizi.
+a[1] -> 20 elemanlı bir dizi.
+
+ //			//	//
+
+ bir int 4 byte ise ( o derleyicide )
+
+ 	int a[10][20]
+
+ 	sizeof(a)	--> 800 bayt yer kaplar.
+
+ 	sizeof(a[0]) --> 80 bayt yer kaplar.
+
+ 	sizeof(a[0][0]) --> 4 bayt yer kaplar.
+
+
+Designated Initializer
+----------------------
+
+	int a[5][4] = {
+
+		[1] = {1,2,3,4};
+		[2] = {5,6,7,8};
+
+	};
+
+bu şekilde initialize edebiliriz.
+
+
+Mülakat Sorusu
+--------------
+
+int a[][] = {1,2,3,4,5};
+int a[3][] = {3,4,1,3,2};
+int a[][2] = {1,2,3,2,4};
+
+bunlardan hangisi legaldir?
+
+Sadece 3. olan legal. Çünkü burada dizinin elemanlarının türü belli, diğerlerinde belli değil. Dizinin elemanlarının türü
+int[2]
+
+
+--------------------------------------------
+
+*** ÖNEMLİ ***
+
+
+	int a[4][3] = {1,23,213, 23, 4,6, 8,79, 9790,};
+
+	int* p1 = a;	// illegal. 
+
+		Neden? - Burada Array Decay olur ve a ifadesi &a[0] ifadesine dönüştürülür. Bu ifadenin türü de int(*)[3]'dür.
+
+		O halde burada bir tür uyumsuzluğu meydana gelir.
+
+
+	int* p2 = a[0];	// bu ifade legal. Neden? - Çünkü a[0] ifadesine de Array Decay uygulanır ve bu ifade &a[0][0] ifadesine
+
+		dönüştürülür.
+
+	int* p3 = (int*) a;		// bu ifade legal. Tür dönüştürme operatörü ile int*'a dönüştürülür.
+
+
+----------------------------
+
+	int a[4][2];	// int[2]
+	int a[5][4];	// int[4]
+	int a[2][4];	// int[4]
+
+	bu üç dizinin de türleri birbirinden farklıdır.
+
+---------------------------------------
+
+***
+	Aşağıdaki kodda derleyici C'de uyarı mesajı, C++'da ise hata verir.
+
+		int a[5][4];
+
+		int* p = a;
+
+	// burada uyarı mesajı almamızın sebebi pointer türü ile dizi türünün farklı olmasıdır.
+
+	Eğer böyle bir kod yazarsak, pointeri arttırdığımızda pointer aritmetiğine göre arttığı için int kadar
+	artacaktır. Fakat 2. elemanı göstermesi için burada sizeof(int*4) kadar artması lazım.
+
+
+	Peki böyle bir pointer nasıl tanımlanır?
+
+		int a[5][4];
+
+		int(*ptr)[4] = &a;
+
+
+
+-----------------------
+
+ÖNEMLİ
+
+	int a[10] = { 0 };
+
+	a // int*
+
+	*a // a dizisinin ilk elemanına erişir.
+
+	&a // int(*)[10]
+
+	*&a // a dizisinin kendisine erişir.
+
+
+	Yani eğer 	
+
+		int(*p)[10] = &a;	
+
+	gibi bir pointer tanımlarsak aslında  (*p) ile a yazmak arasında fark yoktur.
+
+
+---------------------------------------
+
+	int a[10][20] = { 0 };
+
+	int(*p)[20] = a;
+
+	++p;	// her arttırdığımızda 20 adres artar. yani a'nın bir sonraki elemanını gösterir.
+
+
+
+strncpy, strncat, strncmp
+_________________________
+
+Bu fonksiyonlar yazının tamamı değil de n karakteri üzerinde işlem yapar. Str fonksiyonlarından farklı olarak 3. parametre
+olarak "size_t n" alırlar.
+
+
+Bu Fonksiyonlarla Alakalı Bazı Hatalar
+
+	char s[100];
+
+	char str[100] = "ONUR";
+
+	strncpy(s, str, 3);
+
+	puts(s);	// undefined behaviour
+
+	Çünkü str'den 3 karakter kopyaladık. Fakat yazının sonuna '\0' Null kopyalamadık. Veya kendimiz de koymadık.
+
+
+IDIOM
+-----
+
+	Yazı sonuna kendimiz NULL karakter kopyalama işlemini bu şekilde şık bir kodla yapabiliriz.
+
+		strncpy(s, str, 4)[4] = '\0';
+
+
+
+Yazıdan Sayıya Dönüşüm
+______________________
+
+	char str[100];
+	printf("sayi giriniz:");
+	scanf("%s",str);
+	puts(str);
+
+	int x = 0;
+
+	for(int i = 0; str[i] !='\0'; ++i)
+	{
+		x = x * 10 + str[i] - '0';
+	}
+
+
+
+Bu İşlemleri Yapan Fonksiyonlar ( Yazıdan Sayıya Dönüşüm Yapan Fonksiyonlar )
+_____________________________________________________________________________
+
+atoi()
+atol()
+atoll()
+atof()
+
+
+______________
+
+	atoi()
+______________
+
+	int x = atoi(str);
+
+	Bu fonksiyonda eğer geçersiz giriş yaparsak, örneğin "mehmet" gibi, fonksiyon 0 döndürür. Yani x = 0 olur. Fakat
+	gerçekten 0 girsek de x = 0 olur. Eğer 0 dönüyorsa bu iki duurmda olmuş olabilir.
+
+
+
+Mülakatta Çıkabilir / Örnek
+----------------------------
+
+gg-aa-yyyy formatında giriş alacağız.
+
+
+
+	int day = atoi(date);
+	int mon = atoi(date + 3);
+	int year = atoi(date + 6);
+
+	bu şekilde - ye gelinceye kadar alıyor rakamları.
+
+	atof()
+	______
+
+	double için.
+
+	atoll()
+	_______
+
+	long long için.
+
+
+	strtoull()		-		strtoul
+	_______________________________
+
+	unsigned long ve unsigned long long'a dönüştürür.
+
+
+
+
+
+
+
+________________________________________________
+
+		Formatlı Giriş/Çıkış İşlemleri
+________________________________________________
+
+printf ve scanf'in kardeşleri;
+
+	sprintf(), fprintf()
+
+	sscanf(), fscanf()
+
+
+
+
+________________________________________________________
+
+	int sprintf(char* pdest, const char* pfm, ...)
+________________________________________________________
+
+Printf'in standard output'a yazdığını sprintf adresi verilen diziye yani belleğe yazar. Buna "In Memory" denir. Yani giriş ve çıkış bellek üzerinde
+yapılıyor. Adresi girilen belleğe NTBS olarak yazılır.
+
+
+________________________________________________________
+
+	int sscanf(const char* pbuf, const char* pfm, ...)
+________________________________________________________
+
+Char bir yazı adresini giriş olarak alır. 
+
+
+________________________________________________________
+
+	char* itoa(int val, char* puf, int base)
+________________________________________________________
+
+atoi'nin tersi. Standard değil ama derleyiciler çoğunlukla veriyor. Tam sayıyı yazıya dönüştürür. Declaration da standard değil, değişkenlik gösterebilir.
+
+	base -> sayı sistemi, yani 10 yazarsak 10'luk sayı sistemi olur.
+
+
+
+________________________________________________________
+
+	char* strtok(char* str, const char* delim)
+________________________________________________________
+
+Tokenize edilecek yazının adresi => str
+
+Ayıraç olarak kullanılacak => delim
+
+Fonksiyona yapılan çağrıdan NULL pointer elde etmediğimiz sürece fonksiyona yaptığımız her çağrı bize yeni bir token'in adresini verecek.
+
+
+
+-----------------------------------------------------------------------------------------------
+
+Programların Sonlandırılması
+____________________________
+
+Programın çalışan haline process denir. Process hosted enviroment da veya free-standing bir ortamda söz konusu olabilir.
+
+hosted enviroment => program bir işletim sistemi altında koşuyorsa, işletim sistemi processlerin kontrolünü gerçekleştiriyor.
+
+free standing (stand alone) => işletim sistemi olmadan
+
+
+Normal Termination
+------------------
+Normal sonlandırma. Process sonlandığı zaman bazı işlemlerin yapılıyor olma garantisi. Yani process sonlandırılmadan önce bazı işlemlerin
+yapılma garantisi var.
+
+Abnormal Termination
+--------------------
+Yukarıdaki bahsedilen garantiler yok.
+
+
+
+
+
+abort
+_____
+
+Çağrıldığı zaman tak diye program sonlanır.
+
+
+
+
+_____________________
+
+void exit(int status)
+_____________________
+
+Normal termination fonksiyonu.
+
+	exit(7655);	// değer işletim sistemine iletili ve program sonlandırılır.
+
+
+Gönderilen argüman 0 ise programın başarı ile sonlandığı anlamına gelir. Bunun dışındaki değerler başarısız.
+
+	return 1;	// exit(1)
+								dönüştürülür.
+	return 0;	// exit(0)
+
+exit fonksiyonuna argüman olarak geçmek için stdlib.h'da 2 tane makro tanımlanmış.
+
+	EXIT_SUCCESS	0
+	EXIT_FAILURE	1
+
+	exit(EXIT_SUCCESS);
+	exit(EXIT_FAILURE);
+
+_____________________________________
+
+	int atexit(void(*fp)(void))
+_____________________________________
+
+Argüman olarak gönderdiğimiz fonksiyonu kayıt eder. Geri dönüş değeri başarı bilgisi. 0 -> başarılı, non-zero -> başarısız
+
+exit() fonksiyonu çağırıldığında kayıt edildikleri sırayla ters sırada çağırılırlar.
+
+
+_________________________
+
+	void abort(void)
+_________________________
+
+Runtime'da bazı durumları özellikle gözlemleyebilmek için exit() fonksiyonu ile sonlandırmayı istemiyoruz. Çünkü exit() fonksiyonu bir takım garantiler
+veriyor ve bu garantilere ilişkin kodlar çalışıyor. Bu da bazı hataların teşhisini zorlaştıracak ya da olanaksız hale getirecek. O yüzden bir de abnormal
+termination mekanizmasına ihtiyaç var. Tak diye sonlansın program.
+
+Özellikle debug sürecinde vs. lazım olabiliyor. abort() un çağırıldığı yönünde hata ekranında yazı alacağız.
+
+Dynamic Assertion'larda kullanılır.
+
+
+_____________________________________________
+
+		Dynamic Memory Management
+_____________________________________________
+
+Programın çalışma zamanında bir bellek alanının kullanıma sunulması ve o bellek alanına duyulan ihtiyacın ortadan kalkmasıyla da o bellek alanının tekrar
+başka amaçlarla kullanımına olanak sağlamak için adeta geri verilmesi. Programın çalışma zamanında oluyor. Statik bellek yönetiminden daha maliyetlidir.
+
+Mecburiyet senaryolarında kullanılmalı çünkü maliyetli bir işlem.
+
+
+
+
+Memory Allocation
+-----------------
+Programın çalışma zamanında nesne ya da nesnelerin yerlerinin elde edilmesi.
+
+
+Memory Leak ( Bellek Sızıntısı )
+--------------------------------
+Bir bellek alanını allocate etmişsek fakat o bellek alanını geri vermemişsek memory leak oluşur. Dikkatli olmalıyız.
+
+Bir işletim sistemi altında çalışan programda process'in kullandığı bir bellek alanı var. C dilinde buna heap terimi kullanılır. C++'da da heap veya
+free store denir.
+
+
+
+
+malloc	(memory allocation)
+calloc	(cleanin allocation)
+realloc	(re-allocation)
+free
+
+malloc ve calloc bellek alanı tahsisi yapar. Farkları malloc elde ettiği bellek bloğunu dokunmadan garbage value olarak vermesi. Calloc ise 0 baytlarıyla
+doldurarak vermesi.
+
+realloc daha önce allocate edilmiş bellek bloğunun büyütülmesi ya da küçültülmesi için çağırılır. free'de geri berilmesi için çağırılır.
+
+Hepsinin bildirimi <stdlib.h>
+
+
+_________________________________
+
+	void* malloc(size_t n)
+_________________________________
+
+n, edinilmek istenen bellek boyutunun bayt olarak büyüklüğü.
+
+Geri dönüş değeri void* çünkü malloc bizim o bellek bloğunda ne yapacağımızı bilmez.
+
+Dikkat! = Başarı garantisi olan bir fonksiyon değil. Başarılı olursa allocate ettiği bellek bloğunun adresini, başarısız olursa NULL pointer döndürür.
+
+Kullanım Örneği:
+
+
+	int n;
+
+	printf("kaç tam sayı");
+	scanf("%d",&n);
+
+	int* ip = (int*)malloc(n*sizeof(int));
+
+	if(ip == NULL)
+		printf("bellek yetersiz!");	// normalde böyle değil fprintf ile yapılır fakat ilerde göreceğiz.
+		exit(EXIT_FAILURE);
+
+
+
+NOT : Asla malloc çağrısı ile daha önce edinilmiş bir bellek bloğunu ikinci bir malloc çağrısı yaparak bütüyme girişiminde bulunma! Eğer böyle bir ihtiyaç
+varsa realloc() kullan.
+
+
+Kullanım Örneği:
+
+	int get_median(const int* p, size_t size)
+	{
+		int* pd = (int*)malloc(size*sizeof(int));
+		if(!pd)
+			fprintf(stderr,"cannot allocate memory!");
+			exit(EXIT_FAILURE);
+		
+		memcpy(pd, p, size * sizeof(int));
+		
+		sort_array(pd, size);	// sort_array diye bir fonksiyonumuz olmuş olsun
+
+		int ret = pd[size/2];
+
+		free(pd);
+
+		return ret;
+	}
+
+
+
+	Wrapper/Sarmalama
+__________________________
+
+Bir fonksiyonu başka bir fonksiyonla çağırma. Örneğin bir fonksiyonu çağırmak istiyoruz fakat başka işlemlerde yapmak istiyoruz. O halde wrapper bir
+fonksiyon yazarız ve o fonksiyonun içinden çağırıp işlemleri de orada yaparız.
+
+Örnek:
+
+	void* checked_malloc(size_t n)
+	{
+		void* vp = malloc(n);
+
+		if(!vp){
+			fprintf(stderr,"cannot allocate memory!");
+			exit(EXIT_FAILURE);
+		}
+
+		return vp;
+	}
+
+	int main(void)
+	{
+		int n;
+
+		printf("kac tamsayi:");
+		scanf("%d",&n);
+
+		int* p = (int*)checked_malloc(n*sizeof(int));
+	}
+
+Örneğin burada wrapper fonksiyon kullanmış olduk.
+
+
+
+
+NOT
+---
+Allocate edilmiş bellek blokları program sonuna kadar kullanılacak olsa bile en sonda dahi free() etmeliyiz. Etmsezsek memory leak oluşmaz fakat kodun
+okunması, test edilmesi, yardımcı toollardan destek alınması vs. gibi nedenler için önemlidir.
+
+
+
+free()
+______
+Daha önce edinilmiş bellek bloğunu geri verir.
+
+
+NOT : 
+
+	malloc() fonksiyonu bellek tahsis ederken standard olmasa da şuna benzer bir yol izler;
+
+	Örneğin 40 baytlık bir malloc çağrısı yaptık fakat malloc 40 bayttan fazla alan tahsis eder. head kısmında bazı bilgiler tutar.
+
+
+Ayrıca şu açıdan da önemlidir;
+
+	(1) 40 baytlık 20 tane malloc() çağrısı
+
+	(2) 1 baytlık 800 tane malloc() çağrısı
+
+	bu iki örnek aynı yeri kullanmaz. 2.si çok daha fazla alan işgal eder.
+
+______________________________
+
+	Önemli Pointer Hatası
+______________________________
+
+Örneğin 40 baytlık bir memory allocate ettik ve bir pointer hatası sonucu head kısmını değiştirdik. Burada memory leak değil, burayı yöneten veri yapısını 
+bozmuş oluruz. Dinamik bellek yönetimi bu durumda tamamen iflas edebilir. Çok kritik hata, memory leak olsa iyi..
+
+
+|-------|
+|  head |
+|-------|
+|		|
+|		|
+|		|
+|		|
+|		|
+|		|
+|-------|		
+
+
+
+Çıkarımlar
+__________
+
+(1) Head kısmını değiştirmek çok krisik hataya sebep olabilir.
+
+(2) Bir tane büyük malloc çağrısı yapmakla, n tane malloc çağrısı ile aynı büyüklükte bellek bloğu elde etmek aynı olmak zorunda değil. Küçük ama çok fazla
+sayıda olan çağrılar totalde daha fazla yer işgel eder. Çünkü her birinin kendi head alanı da var ayrıyeten.
+
+NOT : free() fonksiyonuna sadece bellek bloğunun adresini göndeririz. Fakat malloc() ile allocate ederken böyle değildi, bellek size'ını da gönderiyoruz.
+Çünkü free() fonksiyonu belleğin bilgilerinin vs. tutulduğu head kısmından o bilgilere erişiyor. Bu sayede tek argüman ile bellek adresi göndererek 
+işlemi yapabiliyoruz.
+
+
+
+
+Dikkat! free() ile ilgili bu hataları yapma!
+---------------------------------------------
+(1) free() fonksiyonu ile allocate ettiğimiz bir bellek bloğu küçültülemez. Yani free() fonksiyonu bloğun bir kısmı ile işlem yapamaz.
+
+	free(p+n/2) gibi bir işlem söz konusu değil.
+
+(2) Dinamik olarak allocate edilmemiş bir bellek bloğu free'ye argüman olarak gönderilemez. malloc, realloc, calloc çağrılarından elde edilmiş olmalı.
+Undefined Behaviour oluşur.
+
+(3) free() çağrısından sonra malloc'un(realloc, calloc da dahil) geri döndürmüş olduğu adres dangling pointer'dır. Bu adresin dereference edilmesi UB.
+Yani free edildikten sonra o bellek bloğu artık bize ait değil.
+
+	free(p);	// burada zaten p değiştirilmez çünkü call by reference değil. Ancak p'nin tuttuğu adres bizim olmaktan çıkar. p dangling pointer olur.
+
+	int x = *p;	// ub
+
+	*p = 345;	// ub
+
+* Bize ait olmayan bir bellek bloğunu bize aitmiş gibi kullanma.
+
+Böyle bir wrapper fonksioynu yazılabilir;
+
+	void my_free(void** vp)
+	{
+		free(*vp);
+		*vp = NULL;
+	}
+
+burada wrapper fonk. yazarak dangling pointeri NULL yaptık.
+
+(4) free() edilmiş bir bellek bloğunun adresini tekrar free() işlevine göndermek UB.
+
+	int* ptr = p;
+
+	free(p);
+	//some other code here
+
+	free(ptr); // double deletion
+
+
+Alınabilecek önlemler:
+
+	free(p);
+
+	p = NULL;
+
+	Dikkat çekmesi için NULL iyi seçim.
+
+	free() çağrısından sonra o pointera yeni bir değer atayana kadar başıboş olacağına NULL gibi geçerli bir değer olsun.
+
+
+NOT : Valgrind adında UNIX/LINUX içinde koşan bir program var. Dİnamik bellek yönetimini analiz eder. Yardımcı tool.
+
+(5) free() etmemek, memory leak'e sebep olur.
+
+
+* free() fonksiyonuna NULL pointer göndermek tanımsız davranış oluşturmaz.
+	
+	int* ptr = NULL;
+
+	free(p);
+
+	Buna no-op(operation) denir. İşlem yapmaz, problem yok.
+
+
+------------
+	NOT
+------------
+
+malloc() fonksiyonuna argüman olarak 0 gönderirsek ne olur? Standard diyor ki şu iki seçenekten biri olmak zorunda [Derleyiciye bağlı]
+
+-Ya malloc NULL Pointer döndürecek.
+
+-Ya da NULL değil ama bir adres döndürecek ama bu adresi dereference etmek tanımsız davranış olacak. Ancak bu durumda eğer NULL ptr değilse bu adres yine
+free() fonk. argüman olarak göndermemiz gerekiyor. Bu da şu demek; malloc'un geri dönüş değerini free() fonksiyonuna argüman olarak gönderirsek bir tanımsız
+davranış oluşmama garantisi var.
+
+Yani ne döndürürse döndürsün bunu free() ye argüman olarak gönderirsek UB olmayacak. Memory Leak olmayacak.
+
+	int* p = (int*)malloc(n*sizeof(int));
+	free(p);
+
+
+___________________________________________
+
+	void* calloc(size_t nt, size_t sz)
+___________________________________________
+
+malloc'tan farkı bellek bloğunu 0'la doldurulmuş, clear edilmiş olarak tahsis eder. Biz bunu tabi memset() ile de yapabiliriz.
+
+	Birinci Parametre --> öğe sayısı
+	İkinci Parametre  --> her bir öğenin sizeof'u
+
+
+
+	Fabrika Fonksiyonları
+________________________________
+
+Öyle fonksiyonlar var ki fonksiyon içinde dinamik bellek yönetimi ile nesne oluşturup bize return eder. Fakat free() işlevini çağırma sorumluluğunu bize
+bırakır. Memory Leak'e neden olmamak için bunu es geçmememiz gerekir.
+
+Örnek:
+
+	char* str_duplicate(const char* p)
+	{
+		char* pd = (char*)malloc(strlen(p) + 1);
+
+		if(!pd){
+			fprintf(stderr,"cannot allocate memory!");
+			exit(EXIT_FAILURE);
+		}
+
+		return strcpy(pd,p);
+	}
+
+	int main()
+	{
+		char str[SIZE];
+
+		char* p = str_duplicate(str);
+
+		printf("(%s) (%s)\n", str, p);
+		free(p);	// client code'un sorumluluğunda.
+	}
+
+
+---------------
+	ÖNEMLİ
+---------------
+
+	int* foo(void)
+
+böyle bir fonksiyonu çağırmadan önce ne döndürüyor bilmek gerekir. Bir int nesne adresi döndürüyor tamam onu biliyoruz ama belki bir int dizi nesnesi bu.
+O yüzden dökümantasyona bakmak önemli. Bu durumlar şunlar olabilir;
+
+ (1) int* foo(int* p)
+
+ 	döndürdüğü adres, gönderdiğimiz adres olabilir.
+
+ (2) Statik yerel bir dizinin ya da global bir değişkenin adresini döndürüyor olabilir.
+
+ Fonksiyona çağrı yaptığımızda ya ona bir daha çağrı yapmadan o değeri kullanacağız ya da o değeri bir yere kopyalayacağız. Çünkü bu fonksiyonu bir daha
+ çağırırsak statik ömürlü nesne adresi döndürdüğü için aynı adresi döndürecek. Fakat eski değeri kaybetmiş olacağız.
+
+ (3) Fonksiyon dinamik ömürlü bir nesne adresi döndürüyor olabilir. Bu durumda geri döndürdüğü adresi free() etmek bizim sorumluluğumuzda.
+
+
+-------
+Rastgele bir parola(yazı) oluşturan ve bunu çağıran koda ileten bir fonksiyon yazın. Bunu 3 farklı şekilde yapabiliriz.
+
+* dinamik bellek yönetimi ile nesne oluşturarak.
+* static değişken oluşturup ileterek.(çağırdıktan sonra kullanılmalı veya kopyalanmalı bir sonraki fonk. çağrısına kadar)
+* out parameter ile çağıran kodun gönderdiği adrese yazdırarak.
+-------
+
+
+
+ÖNEMLİ NOT
+----------
+free etmeden adresi kaybedersek memory leak'e yol açarız.
+
+	
+
+
+
+
+	Dinamik Bellek Yönetimi İle Matris Oluşturma
+-----------------------------------------------------
+
+	size_t col, row;
+
+	printf("matris satir, sutun sayisi girin: ");
+	scanf("%zu%zu",&row, &col);
+
+	int** pd = (int**)malloc(row*sizeof(int*));
+
+	if(!pd){
+		fprintf(stderr,"cannot allocate memory!");
+		exit(EXIT_FAILURE);
+	}
+
+	for(size_t i = 0; i < row; ++i){
+		pd[i] = (int*)malloc(col*sizeof(int));
+
+		if(!pd[i])
+		fprintf(stderr,"cannot allocate memory!");
+		
+		return 1;
+		
+	}
+
+
+
+________________________________________________
+
+	void* realloc(void* vp, size_t newsize)
+________________________________________________
+
+Daha önce edinilmiş bir bellek bloğunun artan ihtiyaç doğrultusunda büyütülmesi için de kullanılır. Ayrıca elde edilmiş bellek bloğunun bir kısmını geri
+vermek için de kullanılıyor. Yani hem büyütme hem de küçültme amaçlı kullanılabilir.
+
+	newsize --> Artma ya da azaltmadan sonra elde etmeyi istediğimiz/erişmek istediğimiz yeni boyut. Bayt değeri ile.
+
+
+
+realloc çağrısı nasıl sonuçlanabilir?
+-------------------------------------
+(1) Örneğin büyütme yaparken, ilk bellek bloğuna dokunmaz ve bellek bloğunu bulunduğu yerde büyütür.
+
+(2) Doğrudan gider ve 3000 baytlık(örneğin) bir alan tahsis eder ve eski bellekteki baytları kopyalayıp orayı free eder.
+	Tabi bu durumda eski bellek bloğunu işaret eden pointer "dangling pointer" olur.
+
+(3) realloc'un başarısız olması. Bu durumda NULL pointer döndürür. Ayrıca eski bellek bloğunu free etmez!
+	Bu yüzden realloc'un geri dönüş değerini mutlaka test etmeliyiz.
+
+* realloc ile ileave edilen bellek bloğu garbage değerler ile doludur.
+
+---------------------------------------------------
+* reallocation takes time. / maliyetli bir işlem. *
+---------------------------------------------------
+
+realloc'tan kaçınılması gereken yerlerden kaçınmalıyız. Örneğin 10000 elemanlı bir diziyi 10001 elemanlı bir dizi haline getirmek için çağırsak 10000 baytlık
+bir bellek bloğu bir yerden bir yere kopyalanacak. Sürekli sürekli bu işlemi gereksiz yapmak çok maliyetli.
+
+--------------------------------------
+* reallocation invalidates pointers! *
+--------------------------------------
+
+
+Eğer dizi realloc ile farklı bir adrese kopyalanır ise, ilk pointer dangling pointer durumuna düşer.
+
+NOT : realloc'un ilk parametresine NULL geçilirse malloc gibi davranır. realloc(NULL,newsize) => malloc(newsize)
+
+
+
+
+
+
+_____________________________
+
+		Dynamic Arrays
+_____________________________
+
+Veri yapısında tutulan öğeler bellekte ardışık (contiguous).
+
+Dinamik dizide tutulan öğe sayısına dinamik dizinin boyutu anlamında size denir.
+
+Öğeler bellekte contigious olduğu için index bilgisi ile constant time'da dizi elemanına erişebiliriz.
+
+	capacity = Allocate edilmiş bellek bloğunda tutulabilecek öğe sayısı.
+
+
+
+|-------|
+|       |
+|		|
+|		|
+|		|
+|		|
+|		|
+|		|
+|		|
+|-------|		
+
+
+Eğer size ile capacity eşitlenirse(veya eşitlendikten sonra bir ekleme talebi gelirse, burayı tam anlamamışım) reallocation gerçekleşir. Fakat öyle 1 tane falan arttırılmaz. Derleyiciye bağlı olmakla birlikte dizinin size'ının 2 katı veya 1,5 katı arttırılabilir.
+
+
+-------------------------------
+
+
+	Static  -  Extern  Keywords
+____________________________________
+
+static
+------
+Farklı iki anlamı var. Bir fonksiyon içine statik bir değişken tanımladığımızda fonksiyon her çağrıldığında o değişken tekrardan initialize edilmez!
+Bir kere initialize edilir. Örneğin bir fonksiyon içinde lookup table arrayimiz var. Fonksiyon her çağrıldığında bu dizi tekrar initialize edilse maliyetli
+olur. Zaten sadece erişmek amaçlı kullanacağımız için em de const. Bu nedenle static olarak tanımlamamız isabetli olacaktır.
+
+
+	
+	Linkage ( Bağlantı )
+_____________________________
+Değişken ve fonksiyonların isimleri linkage denilen bir özelliğe sahip.
+
+
+
+	external linkage | dış bağlantı
+	-------------------------------
+	Birden fazla kaynak dosyada kullanılmasına karşın aslında aynı varlığa ilişkin olan isimler.
+
+
+
+	internal linkage | iç bağlantı
+	------------------------------
+	External Linkage'ın tersi. Bir isim internal linkage'a aitse sadece belirli bir kaynak dosyada bir varlığa ilişkin. Diğer katnak dosyalarda farklı kaynak
+	dosyalara ilişkin olabilir.
+
+
+
+	no-linkage | bağlantısız
+	------------------------
+	Kendi kaynak dosyasında bile her yerde erişemediğimiz isimler.
+
+
+
+Nesnelerimizi tanımlarken normal/default olarak yazarsak nesnelerimiz external olur default olarak. Fakat eğer static yazarsak internal linkage yapabiliriz.
+
+	static int g = 10;
+	static void foo(void)
+	{ ... }
+
+non-definin declaration
+
+	extern int x;	// burada derleyici x'e bellekte yer ayırmaz. Sadece x'in başka kaynak dosyada tanımlı olduğunu ifade eder.
+
+
+// ali.h
+
+	extern int g;
+
+// ali.c
+
+	int g = 10;
+
+
+ali.h başlık dosyasını include eden her kod dosyası extern int g bildirime ile g'yi g=10 olarak ali.c de görecek.
+
+
+Bil ama kullanma! ;
+
+	static x = 5;	 // valid, aslında static int x = 5; ile aynı
+
+	const y = 10;	// valid, aslında const int y = 10; ile aynı
+
+
+
+
+
+
+	Volatile Anahtar Sözcüğü
+_________________________________
+
+Pointer olan veya pointer olmayan bir değişkeni niteleyebiliriz.
+
+Bir değişken volatile ile bildirilmişse o değişkeni değeri program dışı kaynaklarla değiştirilebilir.
+
+Neden kullanıyoruz?
+-------------------
+
+	volatile int x = 10;
+
+örneğin bu kodda derleyici eğer volatile keyword yoksa x'in değerini bellekten okumayacak. Optimizasyon yapacak. Görülen davranış değişmediği için böyle
+optimizasyonlar yapabiliyor. Fakat volatile keyword eklersek böyle olmaz. Yani burada o değişkenle ilgili optimizasyon yapılmasın demiş oluyoruz derleyiciye.
+
+ÖNEMLİ
+------
+const anahtar sözcüğünde olduğu gibi (*) den önce veya sonra yazılması nitilemesini değiştirir.
+
+	volatile int* p = &x;	// pointer to volatile
+
+	gösterdiği nesne volatile --> *p
+
+	int* volatile p = &x;	// volatile pointer to int
+
+	nadiren olsa da ikisi de olabilir;
+
+	volatile int* volatile p = &x;
+
+volatile ile const beraber kullanılabilir.
+	
+	volatile const int x = 5;
+
+volatile int*'dan int*'a dönüşüm doğru kabul edilmez aynı const da olduğu gibi.
+
+
+
+
+
+
+
+		restrict Anahtar Sözcüğü
+_________________________________________
+
+Dile C99'da eklendi.
+Sadece object pointerlar için kullanılır ve pointerin kendisini niteler. Const ve volatile gibi değil yani. Asterisk(*) atomundan sonra kullanılır. Önce
+kullanılırsa doğrudan sentaks hatası.
+
+	void foo(int* restrict p)
+	{...}
+
+Burada derleyiciye demiş oluyourz ki p'nin gösterdiği nesneyi gösteren başka bir pointer yok.
+
+Bir fonksiyona argüman olarak iki aynı pointer gönderebiliriz. Fakat iki tane restrict parametresi olan fonksiyona aynı pointerları gönderemeyiz. İşte zaten
+restrict bize bunu garanti eder. Hatırlayalım overlapped blocks durumunda restrict keyword ile önüne geçiyorduk
+
+Yani parametreleri restrict pointer olan bir fonksiyona gönderdiğimiz pointerların farklı pointer olması garanti altına alınmış durumda.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
